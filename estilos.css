@@ -1,0 +1,75 @@
+    :root {
+    --color-verde-primario: #33665A;
+    --color-verde-secundario: #73A8A0;
+    --color-whatsapp: #25D366;
+    --color-boton: #DFC086;
+    --color-gris-claro: #9F9F9F;
+    --color-gris-oscuro: #4A4A4A;
+    --color-fondo-claro: #F5F5F5; 
+    --color-blanco: #FFFFFF;
+}
+
+body {
+    background-color: #F4F4F4;
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+}
+
+.main-header {
+    background-color: white;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.header-container {
+    max-width: 1200px; 
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+    height: 50px;
+}
+
+.logo-area .logo {
+    height: 80px; 
+    width: auto;
+    display: block;
+}
+
+.nav-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 30px; 
+}
+
+.nav-menu li {
+    display: inline-block;
+    color: var(--color-verde-primario);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    transition: color 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    text-decoration: none;
+}
+
+.nav-menu a{
+    text-decoration: none;
+    color: var(--color-verde-oscuro);
+    font-size: 14px;
+    font-weight: 600; 
+    letter-spacing: 1px;
+    transition: color 0.3s ease;
+}
+
+.nav-menu a:hover {
+    color: var(--color-verde-secundario); 
+}
