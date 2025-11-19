@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto - Pellejín</title>
+    <link rel="stylesheet" href="../components/styles.css">
+    <link rel="stylesheet" href="../estilos.css">
+</head>
+<body>
+    <custom-header></custom-header>
+    
+    <main>
+        <breadcrumb-nav items='[
+            {"name": "Inicio", "url": "../index.html"}, 
+            {"name": "Catálogo", "url": "catalogo.html"}, 
+            {"name": "Bikini Eclipse", "url": "detalle.html"}
+        ]'></breadcrumb-nav>
+        
+        <product-detail product='{
+            "name": "Bikini Eclipse",
+            "price": "50.00",
+            "image": "../public/productos/prd1.png",
+            "description": "Sumérgete en el estilo con nuestros diseños únicos. Confeccionado con materiales de alta calidad para brindarte comodidad y elegancia en cada momento bajo el sol."
+        }'></product-detail>
+        
+        <related-products products='[
+            {"name": "Bikini dos piezas", "price": "52.00", "image": "../public/productos/prd1.png"},
+            {"name": "Bikini", "price": "55.00", "image": "../public/productos/prd1.png"},
+            {"name": "Bikini", "price": "48.00", "image": "../public/productos/prd1.png"},
+            {"name": "Bikini Ola Roja", "price": "52.00", "image": "../public/productos/prd1.png"}
+        ]'></related-products>
+    </main>
+
+    <script src="../components/custom-header.js"></script>
+    <script src="../components/breadcrumb.js"></script>
+    <script src="../components/product-detail.js"></script>
+    <script src="../components/products-grid.js"></script>
+    <script src="../components/related-products.js"></script>
+</body>
+</html>
