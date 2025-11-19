@@ -1,12 +1,14 @@
 class FooterMain extends HTMLElement {
     connectedCallback(){
+        const basePath = window.location.pathname.includes('/pages/') ? '../' : '';
+        
         this.innerHTML = `
             <footer class="main-footer">
                 <div class="footer-content">
                     
                     <div class="footer-column brand-info">
                         <div class="logo-container">
-                            <img src="/public/assets-img/logo-footer.png" alt="Giampiershop Logo" class="footer-logo">
+                            <img src="${basePath}public/assets-img/logo-footer.png" alt="Giampiershop Logo" class="footer-logo">
                         </div>
                         <p class="tagline">Diseños exclusivos y tejidos que te acompañan.</p>
                         <p class="tagline">Vive la moda de baño con la calidad</p>
