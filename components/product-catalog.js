@@ -6,18 +6,20 @@ class ProductCatalog extends HTMLElement {
             <section class="catalog-section">
                 <div class="catalog-container">
                     <div class="section-header">
-                        <h2>Novedades</h2>
                         <div class="category-icons">
                             <div class="category-item">
-                                <div class="icon"><img src="assets/bikini-icon.png" alt="Bikinis"></div>
+                                <div class="icon">
+                                    <img src="public/assets-img/bikini1.png" alt="Bikinis" class="icon-image">
+                                </div>
                                 <span>Bikinis</span>
                             </div>
                             <div class="category-item">
-                                <div class="icon"><img src="assets/entero-icon.png" alt="Enteros"></div>
+                                <div class="icon"><img src="public/assets-img/bikini2.png" alt="Enteros" class="icon-image"></div>
                                 <span>Enteros</span>
                             </div>
                         </div>
                     </div>
+                    <h2 class="section-title">Novedades</h2>
                     <div class="products-grid">
                         ${products.map(product => `
                             <div class="product-card">
