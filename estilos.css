@@ -6,6 +6,7 @@
     --color-gris-claro: #9F9F9F;
     --color-gris-oscuro: #4A4A4A;
     --color-fondo-claro: #F5F5F5; 
+    --color-icono-gris: #F9F9F9;
     --color-blanco: #FFFFFF;
 }
 
@@ -35,7 +36,11 @@ body {
 }
 
 .logo-area .logo {
+<<<<<<< HEAD
+    height: 100px; 
+=======
     height: 40px; 
+>>>>>>> a100fb57f56acec7166d6aec0f6fdc3ba4ce893e
     width: auto;
     display: block;
 }
@@ -73,3 +78,4 @@ body {
 .nav-menu a:hover {
     color: var(--color-verde-secundario); 
 }
+

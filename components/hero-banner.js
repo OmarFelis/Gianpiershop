@@ -1,7 +1,7 @@
 class HeroBanner extends HTMLElement {
     connectedCallback() {
-        const title = this.getAttribute('title') || 'Tu Estilo, Bajo el Sol';
-        const subtitle = this.getAttribute('subtitle') || '';
+        const title = this.getAttribute('title') || 'Tu Estilo, ';
+        const subtitle = this.getAttribute('subtitle') || 'Bajo el Sol';
         const buttonText = this.getAttribute('button-text') || 'Descubre Nuevos Modelos';
         const backgroundImage = this.getAttribute('background') || 'public/assets-img/bikini1.png';
         
