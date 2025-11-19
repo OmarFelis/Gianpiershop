@@ -1,17 +1,20 @@
 class CustomHeader extends HTMLElement {
     connectedCallback() {
+        const basePath = window.location.pathname.includes('/pages/') ? '../' : '';
+        const logoPath = this.getAttribute('logo') || `${basePath}public/assets-img/LOGOGIAM.png`;
+        
         this.innerHTML = `
             <header class="main-header">
                 <div class="header-container">
                     <div class="logo-area">
-                        <img src="${this.getAttribute('logo') || 'public/assets-img/LOGOGIAM.png'}" alt="Logo" class="logo">
+                        <img src="${logoPath}" alt="Logo" class="logo">
                     </div>
                     <nav class="nav-menu">
                         <ul>
-                            <li><a href="index.html">INICIO</a></li>
-                            <li><a href="catalogo.html">CATALOGO</a></li>
-                            <li><a href="nosotros.html">NOSOTROS</a></li>
-                            <li><a href="contacto.html">CONTACTO</a></li>
+                            <li><a href="${basePath}index.html">INICIO</a></li>
+                            <li><a href="${basePath}pages/catalogo.html">CATALOGO</a></li>
+                            <li><a href="${basePath}nosotros.html">NOSOTROS</a></li>
+                            <li><a href="${basePath}contacto.html">CONTACTO</a></li>
                         </ul>
                     </nav>
                 </div>

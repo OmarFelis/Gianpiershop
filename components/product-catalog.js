@@ -1,11 +1,12 @@
 class ProductCatalog extends HTMLElement {
     connectedCallback() {
-        const products = JSON.parse(this.getAttribute('products') || '[]');
+        const products = this.getAttribute('products') || '[]';
         
         this.innerHTML = `
             <section class="catalog-section">
                 <div class="catalog-container">
                     <div class="section-header">
+<<<<<<< HEAD
                         <div class="category-icons">
                             <div class="category-item">
                                 <div class="icon">
@@ -28,7 +29,11 @@ class ProductCatalog extends HTMLElement {
                                 <p class="product-price">S/ ${product.price}</p>
                             </div>
                         `).join('')}
+=======
+                        <category-icons></category-icons>
+>>>>>>> a100fb57f56acec7166d6aec0f6fdc3ba4ce893e
                     </div>
+                    <products-grid products='${products}'></products-grid>
                 </div>
             </section>
         `;
