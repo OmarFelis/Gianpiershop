@@ -65,19 +65,20 @@ def detalle_producto(producto_id: int, db: Session = Depends(get_db)):
         "tallas_disponibles": lista_tallas,
         "galeria": lista_fotos
     }
-'''
+
+    #validar producto ya existe
 @app.post("/productos", status_code=status.HTTP_201_CREATED)
 def crear_producto(producto: ProductoCrear, db: Session = Depends(get_db)):
-    # 1. SQL con parámetros de seguridad (:variable)
-    sql = text("""
-    INSERT INTO productos 
-    (nombre, descripcion, precio_minorista, precio_mayorista, cantidad_para_mayorista, categoria_id, destacado)
-    VALUES 
-    (:nom, :desc, :p_min, :p_may, :cant, :cat, :dest)
-    """)
     
-    # 2. Ejecutamos pasando los valores en un diccionario
-    result = db.execute(sql, {
+    sql = text("""
+        INSERT INTO productos 
+        (nombre, descripcion, precio_minorista, precio_mayorista, cantidad_para_mayorista, categoria_id, destacado)
+        VALUES 
+        (:nom, :desc, :p_min, :p_may, :cant, :cat, :dest)
+    """)
+
+    # Ejecutar insert
+    db.execute(sql, {
         "nom": producto.nombre,
         "desc": producto.descripcion,
         "p_min": producto.precio_minorista,
@@ -86,13 +87,64 @@ def crear_producto(producto: ProductoCrear, db: Session = Depends(get_db)):
         "cat": producto.categoria_id,
         "dest": producto.destacado
     })
-    
-    # 3. ¡CRUCIAL! Confirmar los cambios
+
+    # Confirmar cambios
     db.commit()
-    
-    return {"mensaje": "Producto creado exitosamente", "id_nuevo": result.lastrowid}
 
+    # Obtener el ID del nuevo producto
+    nuevo_id = db.execute(text("SELECT LAST_INSERT_ID()")).scalar()
 
+    return {
+        "mensaje": "Producto creado exitosamente",
+        "id_nuevo": nuevo_id
+    }
 
+@app.put("/productos/{producto_id}")
+def actualizar_producto(producto_id: int, producto: ProductoCrear, db: Session = Depends(get_db)):
 
-'''
+    # Verificar que el producto existe
+    existe = db.execute(text("SELECT id FROM productos WHERE id = :id"), {"id": producto_id}).first()
+    if not existe:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    sql = text("""
+        UPDATE productos SET 
+            nombre = :nom,
+            descripcion = :desc,
+            precio_minorista = :p_min,
+            precio_mayorista = :p_may,
+            cantidad_para_mayorista = :cant,
+            categoria_id = :cat,
+            destacado = :dest
+        WHERE id = :id
+    """)
+
+    db.execute(sql, {
+        "nom": producto.nombre,
+        "desc": producto.descripcion,
+        "p_min": producto.precio_minorista,
+        "p_may": producto.precio_mayorista,
+        "cant": producto.cantidad_para_mayorista,
+        "cat": producto.categoria_id,
+        "dest": producto.destacado,
+        "id": producto_id
+    })
+
+    db.commit()
+
+    return {"mensaje": "Producto actualizado correctamente"}
+
+@app.delete("/productos/{producto_id}")
+def eliminar_producto(producto_id: int, db: Session = Depends(get_db)):
+
+    # Verificar si existe
+    existe = db.execute(text("SELECT id FROM productos WHERE id = :id"), {"id": producto_id}).first()
+    if not existe:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    sql = text("DELETE FROM productos WHERE id = :id")
+    db.execute(sql, {"id": producto_id})
+    db.commit()
+
+    return {"mensaje": "Producto eliminado correctamente"}
+
