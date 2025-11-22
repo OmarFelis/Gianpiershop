@@ -1,150 +1,309 @@
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
-from sqlalchemy import text # Para escribir SQL directo
-from database import get_db
 from typing import List
-from fastapi import status
-from schemas import ProductoCrear
+
+from fastapi import Depends, FastAPI, HTTPException, status
+from sqlalchemy.orm import Session, joinedload
+
+from database import get_db
+from models import (
+    Categoria,
+    ImagenProducto,
+    Inventario,
+    MensajeContacto,
+    Producto,
+)
+from schemas import (
+    CategoriaCreate,
+    CategoriaOut,
+    ImagenCreate,
+    ImagenOut,
+    InventarioCreate,
+    InventarioOut,
+    MensajeContactoCreate,
+    MensajeContactoOut,
+    ProductoActualizar,
+    ProductoCrear,
+    ProductoOut,
+)
 
 app = FastAPI(title="API Catalogo Bikinis")
+
 
 @app.get("/")
 def read_root():
     return {"mensaje": "Bienvenido a la API de Bikinis"}
 
-@app.get("/productos")
+
+# -------------------- Productos --------------------
+@app.get("/productos", response_model=List[ProductoOut])
 def obtener_productos(db: Session = Depends(get_db)):
-    """
-    Obtiene todos los productos con su precio y categoría.
-    """
-    # 1. Ejecutamos el query SQL directo
-    resultado = db.execute(text("SELECT * FROM productos"))
-    
-    # 2. Convertimos los resultados a una lista de diccionarios
-    # (En producción haríamos esto con Modelos ORM, pero así entiendes qué pasa)
-    lista_productos = []
-    for row in resultado:
-        # Convertimos la fila de la BD a un diccionario Python
-        producto = {
-            "id": row.id,
-            "nombre": row.nombre,
-            "precio_unitario": row.precio_minorista,
-            "precio_mayorista": row.precio_mayorista,
-            "categoria_id": row.categoria_id,
-            "destacado": row.destacado
-        }
-        lista_productos.append(producto)
-        
-    return lista_productos
+    """Lista todos los productos con tallas e imágenes."""
+    productos = (
+        db.query(Producto)
+        .options(
+            joinedload(Producto.inventario),
+            joinedload(Producto.imagenes),
+        )
+        .all()
+    )
+    return productos
 
-@app.get("/productos/{producto_id}")
+
+@app.get("/productos/{producto_id}", response_model=ProductoOut)
 def detalle_producto(producto_id: int, db: Session = Depends(get_db)):
-    """
-    Obtiene el detalle, incluyendo TALLAS y FOTOS
-    """
-    # Buscar info basica
-    prod = db.execute(text(f"SELECT * FROM productos WHERE id = {producto_id}")).first()
-    
-    if not prod:
+    """Detalle de un producto, incluyendo inventario e imágenes."""
+    producto = (
+        db.query(Producto)
+        .options(
+            joinedload(Producto.inventario),
+            joinedload(Producto.imagenes),
+        )
+        .filter(Producto.id == producto_id)
+        .first()
+    )
+
+    if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
-    
-    # Buscar tallas (Inventario)
-    tallas = db.execute(text(f"SELECT talla, stock_actual FROM inventario WHERE producto_id = {producto_id}"))
-    lista_tallas = [{"talla": t.talla, "stock": t.stock_actual} for t in tallas]
-    
-    # Buscar fotos
-    fotos = db.execute(text(f"SELECT url_imagen FROM imagenes_producto WHERE producto_id = {producto_id}"))
-    lista_fotos = [f.url_imagen for f in fotos]
 
-    return {
-        "info": {
-            "nombre": prod.nombre,
-            "descripcion": prod.descripcion,
-            "precio": prod.precio_minorista
-        },
-        "tallas_disponibles": lista_tallas,
-        "galeria": lista_fotos
-    }
+    return producto
 
-    #validar producto ya existe
-@app.post("/productos", status_code=status.HTTP_201_CREATED)
+
+@app.post("/productos", response_model=ProductoOut, status_code=status.HTTP_201_CREATED)
 def crear_producto(producto: ProductoCrear, db: Session = Depends(get_db)):
-    
-    sql = text("""
-        INSERT INTO productos 
-        (nombre, descripcion, precio_minorista, precio_mayorista, cantidad_para_mayorista, categoria_id, destacado)
-        VALUES 
-        (:nom, :desc, :p_min, :p_may, :cant, :cat, :dest)
-    """)
-
-    # Ejecutar insert
-    db.execute(sql, {
-        "nom": producto.nombre,
-        "desc": producto.descripcion,
-        "p_min": producto.precio_minorista,
-        "p_may": producto.precio_mayorista,
-        "cant": producto.cantidad_para_mayorista,
-        "cat": producto.categoria_id,
-        "dest": producto.destacado
-    })
-
-    # Confirmar cambios
+    """Crea un producto usando SQLAlchemy ORM."""
+    nuevo_producto = Producto(**producto.dict())
+    db.add(nuevo_producto)
     db.commit()
+    db.refresh(nuevo_producto)
+    return nuevo_producto
 
-    # Obtener el ID del nuevo producto
-    nuevo_id = db.execute(text("SELECT LAST_INSERT_ID()")).scalar()
 
-    return {
-        "mensaje": "Producto creado exitosamente",
-        "id_nuevo": nuevo_id
-    }
-
-@app.put("/productos/{producto_id}")
-def actualizar_producto(producto_id: int, producto: ProductoCrear, db: Session = Depends(get_db)):
-
-    # Verificar que el producto existe
-    existe = db.execute(text("SELECT id FROM productos WHERE id = :id"), {"id": producto_id}).first()
-    if not existe:
+@app.put("/productos/{producto_id}", response_model=ProductoOut)
+def actualizar_producto(
+    producto_id: int, producto: ProductoActualizar, db: Session = Depends(get_db)
+):
+    """Actualiza todos los campos de un producto."""
+    producto_db = db.query(Producto).filter(Producto.id == producto_id).first()
+    if not producto_db:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
 
-    sql = text("""
-        UPDATE productos SET 
-            nombre = :nom,
-            descripcion = :desc,
-            precio_minorista = :p_min,
-            precio_mayorista = :p_may,
-            cantidad_para_mayorista = :cant,
-            categoria_id = :cat,
-            destacado = :dest
-        WHERE id = :id
-    """)
-
-    db.execute(sql, {
-        "nom": producto.nombre,
-        "desc": producto.descripcion,
-        "p_min": producto.precio_minorista,
-        "p_may": producto.precio_mayorista,
-        "cant": producto.cantidad_para_mayorista,
-        "cat": producto.categoria_id,
-        "dest": producto.destacado,
-        "id": producto_id
-    })
+    for campo, valor in producto.dict().items():
+        setattr(producto_db, campo, valor)
 
     db.commit()
+    db.refresh(producto_db)
+    return producto_db
 
-    return {"mensaje": "Producto actualizado correctamente"}
 
-@app.delete("/productos/{producto_id}")
+@app.delete("/productos/{producto_id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_producto(producto_id: int, db: Session = Depends(get_db)):
-
-    # Verificar si existe
-    existe = db.execute(text("SELECT id FROM productos WHERE id = :id"), {"id": producto_id}).first()
-    if not existe:
+    """Elimina un producto y sus relaciones."""
+    producto_db = db.query(Producto).filter(Producto.id == producto_id).first()
+    if not producto_db:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
 
-    sql = text("DELETE FROM productos WHERE id = :id")
-    db.execute(sql, {"id": producto_id})
+    db.delete(producto_db)
     db.commit()
+    return None
 
-    return {"mensaje": "Producto eliminado correctamente"}
 
+# -------------------- Categorias --------------------
+@app.get("/categorias", response_model=List[CategoriaOut])
+def listar_categorias(db: Session = Depends(get_db)):
+    return db.query(Categoria).all()
+
+
+@app.post("/categorias", response_model=CategoriaOut, status_code=status.HTTP_201_CREATED)
+def crear_categoria(categoria: CategoriaCreate, db: Session = Depends(get_db)):
+    existente = db.query(Categoria).filter(Categoria.nombre == categoria.nombre).first()
+    if existente:
+        raise HTTPException(status_code=400, detail="La categoría ya existe")
+    nueva_categoria = Categoria(**categoria.dict())
+    db.add(nueva_categoria)
+    db.commit()
+    db.refresh(nueva_categoria)
+    return nueva_categoria
+
+
+@app.put("/categorias/{categoria_id}", response_model=CategoriaOut)
+def actualizar_categoria(
+    categoria_id: int, categoria: CategoriaCreate, db: Session = Depends(get_db)
+):
+    categoria_db = db.query(Categoria).filter(Categoria.id == categoria_id).first()
+    if not categoria_db:
+        raise HTTPException(status_code=404, detail="Categoría no encontrada")
+
+    categoria_db.nombre = categoria.nombre
+    db.commit()
+    db.refresh(categoria_db)
+    return categoria_db
+
+
+@app.delete("/categorias/{categoria_id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_categoria(categoria_id: int, db: Session = Depends(get_db)):
+    categoria_db = db.query(Categoria).filter(Categoria.id == categoria_id).first()
+    if not categoria_db:
+        raise HTTPException(status_code=404, detail="Categoría no encontrada")
+
+    db.delete(categoria_db)
+    db.commit()
+    return None
+
+
+# -------------------- Inventario --------------------
+def _get_producto_or_404(db: Session, producto_id: int) -> Producto:
+    producto = db.query(Producto).filter(Producto.id == producto_id).first()
+    if not producto:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    return producto
+
+
+@app.get(
+    "/productos/{producto_id}/inventario", response_model=List[InventarioOut]
+)
+def listar_inventario(producto_id: int, db: Session = Depends(get_db)):
+    _get_producto_or_404(db, producto_id)
+    return (
+        db.query(Inventario)
+        .filter(Inventario.producto_id == producto_id)
+        .all()
+    )
+
+
+@app.post(
+    "/productos/{producto_id}/inventario",
+    response_model=InventarioOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def agregar_inventario(
+    producto_id: int, item: InventarioCreate, db: Session = Depends(get_db)
+):
+    _get_producto_or_404(db, producto_id)
+    nuevo_item = Inventario(producto_id=producto_id, **item.dict())
+    db.add(nuevo_item)
+    db.commit()
+    db.refresh(nuevo_item)
+    return nuevo_item
+
+
+@app.put("/inventario/{inventario_id}", response_model=InventarioOut)
+def actualizar_inventario(
+    inventario_id: int, item: InventarioCreate, db: Session = Depends(get_db)
+):
+    inventario_db = db.query(Inventario).filter(Inventario.id == inventario_id).first()
+    if not inventario_db:
+        raise HTTPException(status_code=404, detail="Inventario no encontrado")
+
+    for campo, valor in item.dict().items():
+        setattr(inventario_db, campo, valor)
+
+    db.commit()
+    db.refresh(inventario_db)
+    return inventario_db
+
+
+@app.delete("/inventario/{inventario_id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_inventario(inventario_id: int, db: Session = Depends(get_db)):
+    inventario_db = db.query(Inventario).filter(Inventario.id == inventario_id).first()
+    if not inventario_db:
+        raise HTTPException(status_code=404, detail="Inventario no encontrado")
+
+    db.delete(inventario_db)
+    db.commit()
+    return None
+
+
+# -------------------- Imágenes --------------------
+@app.get(
+    "/productos/{producto_id}/imagenes", response_model=List[ImagenOut]
+)
+def listar_imagenes(producto_id: int, db: Session = Depends(get_db)):
+    _get_producto_or_404(db, producto_id)
+    return (
+        db.query(ImagenProducto)
+        .filter(ImagenProducto.producto_id == producto_id)
+        .all()
+    )
+
+
+@app.post(
+    "/productos/{producto_id}/imagenes",
+    response_model=ImagenOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def agregar_imagen(
+    producto_id: int, imagen: ImagenCreate, db: Session = Depends(get_db)
+):
+    _get_producto_or_404(db, producto_id)
+    nueva_imagen = ImagenProducto(producto_id=producto_id, **imagen.dict())
+    db.add(nueva_imagen)
+    db.commit()
+    db.refresh(nueva_imagen)
+    return nueva_imagen
+
+
+@app.put("/imagenes/{imagen_id}", response_model=ImagenOut)
+def actualizar_imagen(
+    imagen_id: int, imagen: ImagenCreate, db: Session = Depends(get_db)
+):
+    imagen_db = (
+        db.query(ImagenProducto).filter(ImagenProducto.id == imagen_id).first()
+    )
+    if not imagen_db:
+        raise HTTPException(status_code=404, detail="Imagen no encontrada")
+
+    for campo, valor in imagen.dict().items():
+        setattr(imagen_db, campo, valor)
+
+    db.commit()
+    db.refresh(imagen_db)
+    return imagen_db
+
+
+@app.delete("/imagenes/{imagen_id}", status_code=status.HTTP_204_NO_CONTENT)
+def eliminar_imagen(imagen_id: int, db: Session = Depends(get_db)):
+    imagen_db = (
+        db.query(ImagenProducto).filter(ImagenProducto.id == imagen_id).first()
+    )
+    if not imagen_db:
+        raise HTTPException(status_code=404, detail="Imagen no encontrada")
+
+    db.delete(imagen_db)
+    db.commit()
+    return None
+
+
+# -------------------- Mensajes de contacto --------------------
+@app.post(
+    "/mensajes_contacto",
+    response_model=MensajeContactoOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def crear_mensaje_contacto(
+    mensaje: MensajeContactoCreate, db: Session = Depends(get_db)
+):
+    nuevo_mensaje = MensajeContacto(**mensaje.dict())
+    db.add(nuevo_mensaje)
+    db.commit()
+    db.refresh(nuevo_mensaje)
+    return nuevo_mensaje
+
+
+@app.get(
+    "/mensajes_contacto", response_model=List[MensajeContactoOut]
+)
+def listar_mensajes_contacto(db: Session = Depends(get_db)):
+    return db.query(MensajeContacto).order_by(MensajeContacto.fecha_envio.desc()).all()
+
+
+@app.get(
+    "/mensajes_contacto/{mensaje_id}", response_model=MensajeContactoOut
+)
+def obtener_mensaje_contacto(mensaje_id: int, db: Session = Depends(get_db)):
+    mensaje_db = (
+        db.query(MensajeContacto)
+        .filter(MensajeContacto.id == mensaje_id)
+        .first()
+    )
+    if not mensaje_db:
+        raise HTTPException(status_code=404, detail="Mensaje no encontrado")
+    return mensaje_db
