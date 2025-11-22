@@ -1,8 +1,5 @@
 class ProductCatalog extends HTMLElement {
     connectedCallback() {
-        const products = JSON.parse(this.getAttribute('products') || '[]');
-        const basePath = window.location.pathname.includes('/pages/') ? '../' : '';
-        
         this.innerHTML = `
             <section class="catalog-section">
                 <div class="catalog-container">
@@ -10,7 +7,7 @@ class ProductCatalog extends HTMLElement {
                         <category-icons></category-icons>
                     </div>
                     <h2 class="section-title">Novedades</h2>
-                    <products-grid products='${JSON.stringify(products)}'></products-grid>
+                    <products-grid></products-grid>
                 </div>
             </section>
         `;
