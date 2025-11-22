@@ -13,11 +13,7 @@
         <breadcrumb-nav items='[{"name": "Inicio", "url": "../index.html"}, {"name": "Catálogo", "url": "catalogo.html"}]'></breadcrumb-nav>
         <div class="catalog-page">
             <aside class="sidebar">
-                <category-filter categories='[
-                    {"id": "bikinis", "name": "Bikinis", "count": 15},
-                    {"id": "enteros", "name": "Enteros", "count": 8},
-                    {"id": "accesorios", "name": "Accesorios", "count": 5}
-                ]'></category-filter>
+                <category-filter></category-filter>
             </aside>
             <div class="main-content">
                 <product-catalog></product-catalog>
@@ -27,7 +23,7 @@
 
     <script src="../components/custom-header.js"></script>
     <script src="../components/breadcrumb.js"></script>
-    <script src="../components/category-filter.js"></script>
+    <script type="module" src="../components/category-filter.js"></script>
     <script type="module" src="../components/products-grid.js"></script>
     <script src="../components/product-catalog.js"></script>
 </body>

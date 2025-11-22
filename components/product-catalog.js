@@ -1,16 +1,40 @@
 class ProductCatalog extends HTMLElement {
     connectedCallback() {
+        const staticProducts = this.getAttribute('products');
+
         this.innerHTML = `
-            <section class="catalog-section">
                 <div class="catalog-container">
                     <div class="section-header">
                         <category-icons></category-icons>
                     </div>
-                    <h2 class="section-title">Novedades</h2>
                     <products-grid></products-grid>
                 </div>
-            </section>
         `;
+
+        if (staticProducts) {
+            const grid = this.querySelector('products-grid');
+            if (grid) {
+                grid.setAttribute('products', staticProducts);
+            }
+        }
+
+        // Enlazar filtro de categorías (capturado a nivel window)
+        this._onCategorySelected = (e) => {
+            const categoryId = e.detail.categoryId;
+            const grid = this.querySelector('products-grid');
+            if (grid) {
+                grid.setAttribute('category-id', categoryId);
+                if (!grid.getAttribute('products')) {
+                    grid.loadProducts && grid.loadProducts();
+                }
+            }
+        };
+        window.addEventListener('categorySelected', this._onCategorySelected);
+    }
+
+    disconnectedCallback() {
+        this._onCategorySelected &&
+            window.removeEventListener('categorySelected', this._onCategorySelected);
     }
 }
 

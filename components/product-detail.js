@@ -67,7 +67,11 @@ class ProductDetail extends HTMLElement {
                         <div class="size-selector">
                             <label>Talla:</label>
                             <div class="size-options">
-                                ${tallas.map(t => `<button class="size-btn" data-sku="${t.sku || ''}">${t.talla}</button>`).join('') || '<p>Consultar tallas disponibles</p>'}
+                                ${tallas.map(t => `
+                                    <button class="size-btn${t.stock_actual === 0 ? ' disabled' : ''}" data-sku="${t.sku || ''}" ${t.stock_actual === 0 ? 'disabled' : ''}>
+                                        ${t.talla}${t.stock_actual !== undefined ? ` (${t.stock_actual})` : ''}
+                                    </button>
+                                `).join('') || '<p>Consultar tallas disponibles</p>'}
                             </div>
                         </div>
                         <div class="price-section">
@@ -77,6 +81,7 @@ class ProductDetail extends HTMLElement {
                             <img src="${this.basePath}public/assets-img/whatsapp.png" alt="WhatsApp">
                             Consultar por WhatsApp
                         </button>
+        
                     </div>
                 </div>
             </div>

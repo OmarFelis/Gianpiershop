@@ -9,3 +9,9 @@ export async function getProduct(id) {
     if (!res.ok) throw new Error('Producto no encontrado');
     return res.json();
 }
+
+export async function getCategories() {
+    const res = await fetch(`${API_URL}/categorias`);
+    if (!res.ok) throw new Error('Error al cargar categorías');
+    return res.json();
+}
