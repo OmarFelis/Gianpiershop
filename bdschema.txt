@@ -1,0 +1,54 @@
+-- 1. Tabla de Categorías (Igual que antes)
+CREATE TABLE categorias (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL
+);
+
+-- 2. Tabla de Productos (INFORMACIÓN GENERAL)
+-- Aquí van los precios, pero NO el stock ni la talla específica
+CREATE TABLE productos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    categoria_id INT NOT NULL,
+    nombre VARCHAR(150) NOT NULL,
+    descripcion TEXT,
+    
+    -- ATRIBUTOS NUEVOS DE PRECIO
+    precio_minorista DECIMAL(10, 2) NOT NULL, -- Ej: 50.00 (Precio unitario)
+    precio_mayorista DECIMAL(10, 2) NOT NULL, -- Ej: 35.00 (Precio x docena, etc.)
+    cantidad_para_mayorista INT DEFAULT 6,    -- Opcional: A partir de cuántos aplica el precio mayorista
+    
+    destacado BOOLEAN DEFAULT 0,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id)
+);
+
+-- 3. Tabla de Inventario (TALLAS Y STOCK)
+-- Aquí es donde ocurre la magia. Un producto tiene muchas entradas aquí.
+CREATE TABLE inventario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT NOT NULL,
+    talla VARCHAR(10) NOT NULL, -- Ej: "S", "M", "L", "XL"
+    stock_actual INT DEFAULT 0, -- Cuántos de ESTA talla tienes
+    sku VARCHAR(50),            -- Código único (opcional, pero útil para bodega)
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+);
+
+-- 4. Tabla de Imágenes (Igual que antes)
+CREATE TABLE imagenes_producto (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT NOT NULL,
+    url_imagen VARCHAR(255) NOT NULL,
+    es_principal BOOLEAN DEFAULT 0,
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE
+);
+
+-- 5. Tabla de Contacto (Igual que antes)
+CREATE TABLE mensajes_contacto (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_cliente VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    telefono VARCHAR(20),
+    mensaje TEXT NOT NULL,
+    interesado_en_mayorista BOOLEAN DEFAULT 0, -- Nuevo: Saber si es un cliente grande
+    fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

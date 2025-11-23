@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - Pellejín</title>
+    <link rel="stylesheet" href="../components/styles.css">
+    <link rel="stylesheet" href="../estilos.css">
+</head>
+<body>
+    <custom-header></custom-header>
+    <main>
+        <breadcrumb-nav items='[{"name": "Inicio", "url": "../index.html"}, {"name": "Catálogo", "url": "catalogo.html"}]'></breadcrumb-nav>
+        <div class="catalog-page">
+            <aside class="sidebar">
+                <category-filter></category-filter>
+            </aside>
+            <div class="main-content">
+                <product-catalog></product-catalog>
+            </div>
+        </div>
+    </main>
+
+    <script src="../components/custom-header.js"></script>
+    <script src="../components/breadcrumb.js"></script>
+    <script type="module" src="../components/category-filter.js"></script>
+    <script type="module" src="../components/products-grid.js"></script>
+    <script src="../components/product-catalog.js"></script>
+</body>
+</html>
