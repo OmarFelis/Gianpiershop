@@ -12,8 +12,8 @@ class CustomHeader extends HTMLElement {
                     <nav class="nav-menu">
                         <ul>
                             <li><a href="${basePath}index.html">INICIO</a></li>
-                            <li><a href="${basePath}pages/catalogo.html">CATALOGO</a></li>
-                            <li><a href="${basePath}nosotros.html">NOSOTROS</a></li>
+                            <li><a href="${basePath}../pages/catalogo.html">CATALOGO</a></li>
+                            <li><a href="${basePath}../pages/nosotros.html">NOSOTROS</a></li>
                             <li><a href="${basePath}contacto.html">CONTACTO</a></li>
                         </ul>
                     </nav>

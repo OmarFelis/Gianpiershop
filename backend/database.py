@@ -4,8 +4,8 @@ from sqlalchemy.orm import sessionmaker
 from fastapi import middleware
 
 # REEMPLAZA ESTOS DATOS CON LOS DE TU CPANEL
-USUARIO = "root"
-PASSWORD = "root"
+USUARIO = "a1710203"
+PASSWORD = "supertyson12345"
 HOST = "localhost:3306" # En cPanel suele ser localhost
 NOMBRE_BD = "testgiampiershop"
 
