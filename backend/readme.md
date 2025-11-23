@@ -11,3 +11,5 @@ pip install fastapi uvicorn sqlalchemy pymysql o pip requirements.txt
 uvicorn main:app --reload
 
 # 5. En la url escribe /http://127.0.0.1:8000/docs#/
+
+

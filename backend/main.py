@@ -307,3 +307,160 @@ def obtener_mensaje_contacto(mensaje_id: int, db: Session = Depends(get_db)):
     if not mensaje_db:
         raise HTTPException(status_code=404, detail="Mensaje no encontrado")
     return mensaje_db
+
+# -------------------- Contacto --------------------
+@app.post(
+    "/mensajes_contacto",
+    response_model=MensajeContactoOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def crear_mensaje_contacto(
+    mensaje: MensajeContactoCreate, db: Session = Depends(get_db)
+):
+    """Crear nuevo mensaje de contacto desde el formulario público."""
+    nuevo_mensaje = MensajeContacto(**mensaje.dict())
+    db.add(nuevo_mensaje)
+    db.commit()
+    db.refresh(nuevo_mensaje)
+    return nuevo_mensaje
+
+
+@app.get(
+    "/mensajes_contacto", response_model=List[MensajeContactoOut]
+)
+def listar_mensajes_contacto(db: Session = Depends(get_db)):
+    """Listar todos los mensajes ordenados por fecha (más reciente primero)."""
+    return db.query(MensajeContacto).order_by(MensajeContacto.fecha_envio.desc()).all()
+
+
+@app.get(
+    "/mensajes_contacto/{mensaje_id}", response_model=MensajeContactoOut
+)
+def obtener_mensaje_contacto(mensaje_id: int, db: Session = Depends(get_db)):
+    """Obtener un mensaje específico por ID."""
+    mensaje_db = (
+        db.query(MensajeContacto)
+        .filter(MensajeContacto.id == mensaje_id)
+        .first()
+    )
+    if not mensaje_db:
+        raise HTTPException(status_code=404, detail="Mensaje no encontrado")
+    return mensaje_db
+
+@app.delete(
+    "/mensajes_contacto/{mensaje_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def eliminar_mensaje_contacto(mensaje_id: int, db: Session = Depends(get_db)):
+    """Eliminar un mensaje de contacto."""
+    mensaje_db = (
+        db.query(MensajeContacto)
+        .filter(MensajeContacto.id == mensaje_id)
+        .first()
+    )
+    if not mensaje_db:
+        raise HTTPException(status_code=404, detail="Mensaje no encontrado")
+    
+    db.delete(mensaje_db)
+    db.commit()
+    return None
+
+
+@app.get("/mensajes_contacto/filtrar/mayoristas", response_model=List[MensajeContactoOut])
+def listar_interesados_mayorista(db: Session = Depends(get_db)):
+    """Listar solo los mensajes de clientes interesados en ventas mayoristas."""
+    return (
+        db.query(MensajeContacto)
+        .filter(MensajeContacto.interesado_en_mayorista == True)
+        .order_by(MensajeContacto.fecha_envio.desc())
+        .all()
+    )
+
+
+@app.get("/mensajes_contacto/buscar/email/{email}", response_model=List[MensajeContactoOut])
+def buscar_por_email(email: str, db: Session = Depends(get_db)):
+    """Buscar todos los mensajes de un email específico."""
+    mensajes = (
+        db.query(MensajeContacto)
+        .filter(MensajeContacto.email == email)
+        .order_by(MensajeContacto.fecha_envio.desc())
+        .all()
+    )
+    if not mensajes:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"No se encontraron mensajes para el email: {email}"
+        )
+    return mensajes
+
+
+@app.get("/mensajes_contacto/estadisticas/resumen")
+def obtener_estadisticas_mensajes(db: Session = Depends(get_db)):
+    """Obtener estadísticas generales de los mensajes de contacto."""
+    from datetime import datetime, timedelta
+    
+    total = db.query(MensajeContacto).count()
+    interesados_mayorista = (
+        db.query(MensajeContacto)
+        .filter(MensajeContacto.interesado_en_mayorista == True)
+        .count()
+    )
+    
+    # Mensajes de los últimos 7 días
+    hace_7_dias = datetime.now() - timedelta(days=7)
+    recientes = (
+        db.query(MensajeContacto)
+        .filter(MensajeContacto.fecha_envio >= hace_7_dias)
+        .count()
+    )
+    
+    # Mensajes del último mes
+    hace_30_dias = datetime.now() - timedelta(days=30)
+    ultimo_mes = (
+        db.query(MensajeContacto)
+        .filter(MensajeContacto.fecha_envio >= hace_30_dias)
+        .count()
+    )
+    
+    return {
+        "total_mensajes": total,
+        "interesados_mayorista": interesados_mayorista,
+        "mensajes_ultima_semana": recientes,
+        "mensajes_ultimo_mes": ultimo_mes,
+        "porcentaje_mayorista": round((interesados_mayorista / total * 100), 2) if total > 0 else 0
+    }
+
+
+@app.get("/mensajes_contacto/recientes/ultimos")
+def obtener_ultimos_mensajes(
+    limite: int = 10, 
+    db: Session = Depends(get_db)
+):
+    """Obtener los últimos N mensajes (por defecto 10)."""
+    if limite > 100:
+        raise HTTPException(
+            status_code=400, 
+            detail="El límite máximo es 100 mensajes"
+        )
+    
+    mensajes = (
+        db.query(MensajeContacto)
+        .order_by(MensajeContacto.fecha_envio.desc())
+        .limit(limite)
+        .all()
+    )
+    
+    return {
+        "total_mostrados": len(mensajes),
+        "mensajes": [
+            {
+                "id": m.id,
+                "nombre_cliente": m.nombre_cliente,
+                "email": m.email,
+                "asunto": m.asunto,
+                "fecha_envio": m.fecha_envio,
+                "interesado_en_mayorista": m.interesado_en_mayorista
+            }
+            for m in mensajes
+        ]
+    }
