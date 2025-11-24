@@ -1,13 +1,10 @@
 class Nosotros extends HTMLElement {
     connectedCallback(){
-        // --- Datos para la Sección de Misión (Hero Banner) ---
         const missionHeadline = 'CONQUISTA TU VERANO CON CONFIANZA.';
         const missionSlogan = 'El estilo que te acompaña en cada ola, diseñado para tu confort y belleza.';
-        // **IMPORTANTE:** Reemplaza 'public/assets-img/quienes-somos-bg.jpg' con una imagen de alta calidad de tu marca (playa, modelo, etc.).
         const missionImage = '/public/assets-img/banner3.jpg'; 
         const missionButton = 'Explorar Colección';
 
-        // --- Estructura Completa de la Página ---
         this.innerHTML = `
             <div class="quienes-somos-page">
 
