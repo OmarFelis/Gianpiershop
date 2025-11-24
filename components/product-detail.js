@@ -24,7 +24,7 @@ class ProductDetail extends HTMLElement {
             this.renderProduct(product);
         } catch (err) {
             console.error(err);
-            this.renderError('No pudimos cargar el producto. Intenta más tarde.');
+            this.renderError('No pudimos cargar el producto. Intenta mas tarde.');
         }
     }
 
@@ -44,6 +44,18 @@ class ProductDetail extends HTMLElement {
         `;
     }
 
+    openWSP(product) {
+        const phone = '51937475112'; // Cambiar por numero real con codigo de pais sin +
+        const talla = this.querySelector('.size-btn.active')?.textContent.trim() || 'Talla no seleccionada';
+        const precioTipo = this.querySelector('.price-check:checked')?.value === 'mayorista' ? 'mayorista' : 'minorista';
+        const precio = precioTipo === 'mayorista'
+            ? (product.precio_mayorista ?? product.precio ?? '0.00')
+            : (product.precio_minorista ?? product.precio ?? '0.00');
+        const text = `Hola, estoy interesado en el producto ${product.nombre} - Talla: ${talla} - Precio ${precioTipo}: S/ ${precio}`;
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    }
+
     renderProduct(product) {
         const imagenPrincipal =
             (product.imagenes && product.imagenes.find(img => img.es_principal)?.url_imagen) ||
@@ -53,7 +65,11 @@ class ProductDetail extends HTMLElement {
         const tallas = product.inventario || [];
         const descripcion =
             product.descripcion ||
-            'Descubre nuestros diseños únicos con materiales de alta calidad para tu comodidad y estilo.';
+            'Descubre nuestros disenos unicos con materiales de alta calidad para tu comodidad y estilo.';
+
+        const precioMinorista = product.precio_minorista ?? product.precio ?? '0.00';
+        const precioMayorista = product.precio_mayorista ?? product.precio ?? null;
+        const tieneMayorista = precioMayorista !== null;
 
         this.innerHTML = `
             <div class="product-detail">
@@ -75,7 +91,22 @@ class ProductDetail extends HTMLElement {
                             </div>
                         </div>
                         <div class="price-section">
-                            <span class="price">S/ ${product.precio_minorista ?? product.precio ?? '0.00'}</span>
+                            <div class="price-block">
+                                <label class="price-label">Precio minorista:</label>
+                                <span class="price">S/ ${precioMinorista}</span>
+                                <label class="price-option">
+                                    <input class="price-check" type="checkbox" value="minorista" checked>
+                                    <span>Seleccionar</span>
+                                </label>
+                            </div>
+                            <div class="price-block">
+                                <label class="price-label">Precio mayorista:</label>
+                                <span class="price">S/ ${precioMayorista ?? 'N/A'}</span>
+                                <label class="price-option">
+                                    <input class="price-check" type="checkbox" value="mayorista" ${tieneMayorista ? '' : 'disabled'}>
+                                    <span>${tieneMayorista ? 'Seleccionar' : 'No disponible'}</span>
+                                </label>
+                            </div>
                         </div>
                         <button class="whatsapp-btn">
                             <img src="${this.basePath}public/assets-img/whatsapp.png" alt="WhatsApp">
@@ -86,6 +117,26 @@ class ProductDetail extends HTMLElement {
                 </div>
             </div>
         `;
+
+        const wspBtn = this.querySelector('.whatsapp-btn');
+        if (wspBtn) {
+            wspBtn.addEventListener('click', () => this.openWSP(product));
+        }
+
+        const priceChecks = this.querySelectorAll('.price-check');
+        priceChecks.forEach(check => {
+            check.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    priceChecks.forEach(other => {
+                        if (other !== e.target) other.checked = false;
+                    });
+                } else if (![...priceChecks].some(c => c.checked)) {
+                    // Siempre deja una seleccionada: vuelve a minorista si se desmarcan todas
+                    const minorista = this.querySelector('.price-check[value="minorista"]');
+                    if (minorista) minorista.checked = true;
+                }
+            });
+        });
 
         this.addEventListener('click', (e) => {
             if (e.target.classList.contains('size-btn')) {
