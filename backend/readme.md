@@ -5,7 +5,7 @@ python -m venv venv
 .\venv\Scripts\activate
 
 # 3. Ahora instala las cosas DENTRO de este entorno
-pip install fastapi uvicorn sqlalchemy pymysql o pip requirements.txt
+pip install fastapi uvicorn sqlalchemy pymysql a2wsgi o pip requirements.txt
 
 # 4. Ahora sí funcionará el comando directo
 uvicorn main:app --reload

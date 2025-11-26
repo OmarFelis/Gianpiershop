@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = 'https://giampiershop.shop/api';
 export async function getProducts() {
     const res = await fetch(`${API_URL}/productos`);
     if (!res.ok) throw new Error('Error al cargar productos');

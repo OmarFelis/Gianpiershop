@@ -3,6 +3,7 @@ from typing import List
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session, joinedload
+from fastapi.middleware.cors import CORSMiddleware
 
 from database import get_db
 from models import (
@@ -28,15 +29,16 @@ from schemas import (
 
 app = FastAPI(title="API Catalogo Bikinis")
 
+origins = [
+    "[https://giampiershop.shop](https://giampiershop.shop)",
+    "[https://www.giampiershop.shop](https://www.giampiershop.shop)",
+    "[http://giampiershop.shop](http://giampiershop.shop)"
+]
+
 # CORS para frontend local (ajusta orígenes según necesites)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-        "http://127.0.0.1:3000",
-        "http://localhost:3000",
-    ],
+    allow_origins= origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

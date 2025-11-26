@@ -211,7 +211,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
-    align-items: start;
+    align-items: stretch;
 }
 
 .product-card {
@@ -223,6 +223,7 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
 .product-card:hover {
@@ -231,7 +232,9 @@
 
 .product-thumb {
     width: 100%;
-    aspect-ratio: 3 / 4;
+    height: 320px;
+    max-height: 320px;
+    min-height: 320px;
     background: #f5f5f5;
 }
 
@@ -499,6 +502,19 @@
     gap: 8px;
 }
 
+/* Header */
+.main-header .logo {
+    width: 100px;
+    height: auto;
+    object-fit: contain;
+}
+
+@media (max-width: 768px) {
+    .main-header .logo {
+        width: 160px;
+    }
+}
+
 .category-option {
     display: flex;
     justify-content: space-between;
@@ -677,6 +693,69 @@
 
 .price-option input[type="checkbox"]:disabled + span {
     opacity: 0.5;
+}
+
+/* Map Section */
+.map-section {
+    padding: 60px 20px 80px;
+    background: #f5f7f6;
+}
+
+.map-card {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    min-height: 420px;
+}
+
+.map-info {
+    padding: 32px 36px;
+    background: linear-gradient(135deg, #e8f2ef, #f8fbfa);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    color: var(--color-gris-oscuro, #3d3d3d);
+}
+
+.map-kicker {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-verde-primario);
+    font-weight: 700;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.map-title {
+    margin: 0;
+    color: var(--color-verde-primario);
+    font-size: 1.8rem;
+}
+
+.map-description {
+    margin: 0;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.map-frame {
+    position: relative;
+    min-height: 360px;
+}
+
+.map-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    filter: grayscale(0.1) saturate(1.05);
 }
 
 .price {
@@ -892,4 +971,209 @@
 .cta-button:hover {
     background-color: #4a8079;
     transform: scale(1.03);
+}
+
+.contact-page-wrapper {
+    font-family: 'Poppins', sans-serif;
+    background-color: white;
+    padding-bottom: 10px;
+}
+
+.contact-hero {
+    background-color: var(--color-fondo-claro);
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.contact-hero h1 {
+    font-size: 3rem;
+    color: var(--color-verde-primario);
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.contact-hero p {
+    font-size: 1.1rem;
+    color: var(--color-texto-oscuro);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.contact-container {
+    display: flex;
+    max-width: 1000px;
+    margin: 60px auto;
+    background-color: white; 
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); 
+    border-radius: 12px;
+    overflow: hidden; 
+}
+
+.contact-image-area {
+    flex: 0 0 35%;
+    height: auto; 
+    min-height: 100%; 
+    background: var(--color-acento-beige); 
+    position: relative;
+    overflow: hidden; 
+}
+
+.contact-visual {
+   width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.contact-form-area {
+    flex: 1; 
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.contact-form-area h2 {
+    color: var(--color-verde-primario);
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 25px; 
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--color-texto-oscuro);
+    font-weight: 600;
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid black;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box; 
+    background-color: white; 
+    color: var(--color-texto-oscuro);
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus, .form-group textarea:focus {
+    border-color: var(--color-verde-primario);
+    outline: none;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.checkbox-group {
+    margin-top: -10px;
+}
+
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: var(--color-texto-oscuro);
+}
+
+.checkbox-label input[type="checkbox"] {
+    accent-color: var(--color-verde-primario);
+    width: 18px;
+    height: 18px;
+}
+
+.form-status {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: none;
+}
+
+.form-status.status-info {
+    display: block;
+    background: #eef4ff;
+    color: #254f8a;
+}
+
+.form-status.status-success {
+    display: block;
+    background: #e6f4ea;
+    color: #1e6b3a;
+}
+
+.form-status.status-error {
+    display: block;
+    background: #fdecea;
+    color: #b23b3b;
+}
+
+
+.contact-submit-button {
+    width: 100%;
+    background-color: var(--color-verde-primario);
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-transform: uppercase;
+    margin-top: 25px; 
+}
+
+.contact-submit-button:hover {
+    background-color: #2b5548; 
+}
+
+.contact-divider {
+    border: 0;
+    height: 1px;
+    background-color: var(--color-fondo-claro);
+    margin: 40px 0; 
+}
+
+.contact-info h3 {
+    color: var(--color-verde-primario);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.contact-info p {
+    color: var(--color-texto-oscuro);
+    margin-bottom: 8px;
+}
+
+.contact-info a {
+    color: var(--color-verde-primario);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.contact-info a:hover {
+    color: var(--color-verde-primario);
+}
+
+.social-links {
+    margin-top: 20px;
+}
+
+.social-links i {
+    font-size: 1.5rem;
+    margin-right: 15px;
+    color: var(--color-verde-primario);
+    transition: color 0.3s;
+}
+
+.social-links i:hover {
+    color: var(--color-verde-secundario);
 }

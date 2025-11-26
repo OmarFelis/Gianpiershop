@@ -4,10 +4,10 @@ from sqlalchemy.orm import sessionmaker
 from fastapi import middleware
 
 # REEMPLAZA ESTOS DATOS CON LOS DE TU CPANEL
-USUARIO = "root"
-PASSWORD = "root"
-HOST = "localhost:3306" # En cPanel suele ser localhost
-NOMBRE_BD = "testgiampiershop"
+USUARIO = "giampier_adminnova"
+PASSWORD = "Omarcin2024."
+HOST = "localhost" # En cPanel suele ser localhost
+NOMBRE_BD = "giampier_giampiershop"
 
 SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{USUARIO}:{PASSWORD}@{HOST}/{NOMBRE_BD}"
 
